@@ -29,7 +29,7 @@ class Utility
 
     public function __construct(
         VariableFactory $customVariableFactory,
-        CategoryManagementInterface $categoryManagement
+        CategoryManagementInterface $categoryManagement,
         Dir\Reader $reader,
         BlockRepositoryInterface $blockRepository,
         BlockInterfaceFactory $blockInterfaceFactory
