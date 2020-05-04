@@ -117,7 +117,7 @@ class Utility
         } catch (NoSuchEntityException $exception) {
             /** @var BlockInterface $block */
             $block = $this->blockInterfaceFactory->create();
-            $block->->setTitle($title)
+            $block->setTitle($title)
                 ->setIdentifier($identifier)
                 ->setIsActive(true)
                 ->setData('stores', $stores);
