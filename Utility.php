@@ -79,7 +79,7 @@ class Utility
     }
     
     
-    private function getBlockSourceDirectory()
+    public function getBlockSourceDirectory()
     {
         return sprintf(
             '%s/%s',
@@ -88,14 +88,14 @@ class Utility
         );
     }
     
-    private function createBlocksFromDir($source)
+    public function createBlocksFromDir($source)
     {
         $blocks = array_diff(scandir($source), ['..', '.']);
 
         foreach ($blocks as $block) {
             $path = $directory . '/' . $block;
             if (is_dir($path)) {
-                $this->createBlocksFromDirectory($path);
+                $this->createBlocksFromDir($path);
                 continue;
             }
 
