@@ -93,7 +93,7 @@ class Utility
         $blocks = array_diff(scandir($source), ['..', '.']);
 
         foreach ($blocks as $block) {
-            $path = $directory . '/' . $block;
+            $path = $source . '/' . $block;
             if (is_dir($path)) {
                 $this->createBlocksFromDir($path);
                 continue;
