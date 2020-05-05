@@ -9,6 +9,7 @@ use Magento\Cms\Api\BlockRepositoryInterface;
 use Magento\Cms\Api\Data\BlockInterfaceFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Zero1\ReleaseLibrary\EntityAlreadyExistsException;
+use \Psr\Log\LoggerInterface;
 
 class Utility
 {
@@ -26,19 +27,25 @@ class Utility
 
     /** @var BlockInterfaceFactory */
     private $blockInterfaceFactory;
+    
+    /** @var LoggerInterface */
+    private $logger;
+
 
     public function __construct(
         VariableFactory $customVariableFactory,
         CategoryManagementInterface $categoryManagement,
         Dir\Reader $reader,
         BlockRepositoryInterface $blockRepository,
-        BlockInterfaceFactory $blockInterfaceFactory
+        BlockInterfaceFactory $blockInterfaceFactory,
+        \Psr\Log\LoggerInterface $logger
     ){
         $this->customVariableFactory = $customVariableFactory;
         $this->categoryManagement = $categoryManagement;
         $this->reader = $reader;
         $this->blockRepository = $blockRepository;
         $this->blockInterfaceFactory = $blockInterfaceFactory;
+        $this->logger = $logger;
     }
 
     public function createCustomVariable(
@@ -69,6 +76,7 @@ class Utility
      */
     public function moveCategory($categoryId,$parentId,$afterId)
     {
+		$this->logger->alert('moveCategory', array()) ; 
         $isCategoryMoveSuccess = false;
         try {
             $isCategoryMoveSuccess = $this->categoryManagement->move($categoryId, $parentId, $afterId);
@@ -80,7 +88,8 @@ class Utility
     
     
     public function getBlockSourceDirectory()
-    {
+    {    	
+		$this->logger->alert('getBlockSourceDirectory', array()) ; 
         return sprintf(
             '%s/%s',
             $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, 'Zero1_ClientSetup'),
@@ -90,8 +99,9 @@ class Utility
     
     public function createBlocksFromDir($source)
     {
+		$this->logger->alert('createBlocksFromDir', array()) ; 
         $blocks = array_diff(scandir($source), ['..', '.']);
-
+		$this->logger->alert('createBlocksFromDir', $blocks) ; 
         foreach ($blocks as $block) {
             $path = $source . '/' . $block;
             if (is_dir($path)) {
@@ -112,6 +122,9 @@ class Utility
         string $content,
         array $stores = [0]
     ) {
+    	
+    	$this->logger->alert('makeBlock try '.$identifier, array()) ; 
+
         try {
             $block = $this->blockRepository->getById($identifier);
         } catch (NoSuchEntityException $exception) {
