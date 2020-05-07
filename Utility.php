@@ -7,6 +7,8 @@ use Magento\Catalog\Api\CategoryManagementInterface;
 use Magento\Framework\Module\Dir;
 use Magento\Cms\Api\BlockRepositoryInterface;
 use Magento\Cms\Api\Data\BlockInterfaceFactory;
+use Magento\Cms\Model\PageFactory;
+use Magento\Cms\Model\PageRepository;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Zero1\ReleaseLibrary\EntityAlreadyExistsException;
 use \Psr\Log\LoggerInterface;
@@ -24,9 +26,14 @@ class Utility
 
     /** @var BlockRepositoryInterface */
     private $blockRepository;
-
     /** @var BlockInterfaceFactory */
     private $blockInterfaceFactory;
+
+    /** @var \Magento\Cms\Model\PageRepository */
+    protected $pageRepository;
+    /** @var \Magento\Cms\Model\PageFactory */
+    protected $pageFactory;
+
     
     /** @var LoggerInterface */
     private $logger;
@@ -38,6 +45,8 @@ class Utility
         Dir\Reader $reader,
         BlockRepositoryInterface $blockRepository,
         BlockInterfaceFactory $blockInterfaceFactory,
+        PageRepository $pageRepository,
+        PageFactory $pageFactory,
         \Psr\Log\LoggerInterface $logger
     ){
         $this->customVariableFactory = $customVariableFactory;
@@ -45,6 +54,8 @@ class Utility
         $this->reader = $reader;
         $this->blockRepository = $blockRepository;
         $this->blockInterfaceFactory = $blockInterfaceFactory;
+        $this->pageRepository = $pageRepository;
+        $this->pageFactory = $pageFactory;
         $this->logger = $logger;
     }
 
