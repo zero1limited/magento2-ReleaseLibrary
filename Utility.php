@@ -170,7 +170,7 @@ class Utility
         array $stores = [0]
     ) {
         try {
-            $block = $this->pageRepository->getById($identifier);
+            $page = $this->pageRepository->getById($identifier);
         } catch (NoSuchEntityException $exception) {
             /** @var \Magento\Cms\Model\Page $page */
             $page = $this->pageFactory->create();
