@@ -96,16 +96,41 @@ class Utility
             'block_source'
         );
     }
+
+    public function getPageSourceDirectory()
+    {
+        $this->logger->alert('getPageSourceDirectory', array()) ;
+        return sprintf(
+            '%s/%s',
+            $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, 'Zero1_ClientSetup'),
+            'page_source'
+        );
+    }
     
     public function createBlocksFromDir($source)
     {
-		$this->logger->alert('createBlocksFromDir', array()) ; 
         $blocks = array_diff(scandir($source), ['..', '.']);
-		$this->logger->alert('createBlocksFromDir', $blocks) ; 
         foreach ($blocks as $block) {
             $path = $source . '/' . $block;
             if (is_dir($path)) {
                 $this->createBlocksFromDir($path);
+                continue;
+            }
+
+            $id = pathinfo($block, PATHINFO_FILENAME);
+            $title = str_replace('-', ' ', $id);
+            $contents = file_get_contents($path);
+            $this->makeBlock($id, $title, $contents);
+        }
+    }
+
+    public function createPagesFromDir($source)
+    {
+        $blocks = array_diff(scandir($source), ['..', '.']);
+        foreach ($blocks as $block) {
+            $path = $source . '/' . $block;
+            if (is_dir($path)) {
+                $this->createPagesFromDir($path);
                 continue;
             }
 
@@ -122,9 +147,6 @@ class Utility
         string $content,
         array $stores = [0]
     ) {
-    	
-    	$this->logger->alert('makeBlock try '.$identifier, array()) ; 
-
         try {
             $block = $this->blockRepository->getById($identifier);
         } catch (NoSuchEntityException $exception) {
@@ -138,5 +160,29 @@ class Utility
 
         $block->setContent($content);
         $this->blockRepository->save($block);
-    } 
+    }
+
+
+    private function makePage(
+        string $identifier,
+        string $title,
+        string $content,
+        array $stores = [0]
+    ) {
+        try {
+            $block = $this->pageRepository->getById($identifier);
+        } catch (NoSuchEntityException $exception) {
+            /** @var \Magento\Cms\Model\Page $page */
+            $page = $this->pageFactory->create();
+            $page->setTitle($title)
+                ->setIdentifier($identifier)
+                ->setPageLayout('cms-page')
+                ->setIsActive(true)
+                ->setContent($content)
+                ->setData('stores', $stores);
+        }
+
+        $block->setContent($content);
+        $this->blockRepository->save($block);
+    }
 }
