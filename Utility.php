@@ -172,7 +172,18 @@ class Utility
         }
 
         $block->setContent($content);
-        $this->blockRepository->save($block);
+
+
+        try {
+            $this->logger->alert('saveBlock '.$title, array()) ;
+            $this->blockRepository->save($block);
+        } catch (NoSuchEntityException $exception) {
+            $this->logger->alert('saveBlock ERROR '.$exception, array()) ;
+
+
+        }
+
+
     }
 
 
@@ -186,6 +197,8 @@ class Utility
             $page = $this->pageRepository->getById($identifier);
         } catch (NoSuchEntityException $exception) {
             /** @var \Magento\Cms\Model\Page $page */
+            $this->logger->alert('makePage '.$title, array()) ;
+
             $page = $this->pageFactory->create();
             $page->setTitle($title)
                 ->setIdentifier($identifier)
