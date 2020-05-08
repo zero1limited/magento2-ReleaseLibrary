@@ -163,6 +163,8 @@ class Utility
         } catch (NoSuchEntityException $exception) {
             /** @var BlockInterface $block */
             $block = $this->blockInterfaceFactory->create();
+            $this->logger->alert('makeBlock '.$title, array()) ;
+
             $block->setTitle($title)
                 ->setIdentifier($identifier)
                 ->setIsActive(true)
@@ -193,7 +195,7 @@ class Utility
                 ->setData('stores', $stores);
         }
 
-        $block->setContent($content);
-        $this->blockRepository->save($block);
+        $page->setContent($content);
+        $this->blockRepository->save($page);
     }
 }
