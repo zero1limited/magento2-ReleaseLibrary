@@ -207,6 +207,6 @@ class Utility
         }
 
         $page->setContent($content);
-        $this->blockRepository->save($page);
+        $this->pageRepository->save($page);
     }
 }
