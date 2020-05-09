@@ -22,6 +22,6 @@
         "install"
     ],
     "suggest": {
-        "mdoq/module-connector": "Improves DevOps for Magento2"
+        "mdoq/module-connector": "Improves DevOps for Magento 2"
     }
 }
