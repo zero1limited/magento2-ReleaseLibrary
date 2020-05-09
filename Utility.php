@@ -172,8 +172,6 @@ class Utility
         }
 
         $block->setContent($content);
-
-
         try {
             $this->logger->alert('saveBlock '.$title, array()) ;
             $this->blockRepository->save($block);
