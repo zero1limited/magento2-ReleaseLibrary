@@ -137,18 +137,18 @@ class Utility
 
     public function createPagesFromDir($source)
     {
-        $blocks = array_diff(scandir($source), ['..', '.']);
-        foreach ($blocks as $block) {
-            $path = $source . '/' . $block;
+        $pages = array_diff(scandir($source), ['..', '.']);
+        foreach ($pages as $page) {
+            $path = $source . '/' . $page;
             if (is_dir($path)) {
                 $this->createPagesFromDir($path);
                 continue;
             }
 
-            $id = pathinfo($block, PATHINFO_FILENAME);
+            $id = pathinfo($page, PATHINFO_FILENAME);
             $title = str_replace('-', ' ', $id);
             $contents = file_get_contents($path);
-            $this->makeBlock($id, $title, $contents);
+            $this->makePage($id, $title, $contents);
         }
     }
     
