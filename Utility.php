@@ -200,7 +200,7 @@ class Utility
             $page = $this->pageFactory->create();
             $page->setTitle($title)
                 ->setIdentifier($identifier)
-                ->setPageLayout('cms-page')
+                ->setPageLayout('1column')
                 ->setIsActive(true)
                 ->setContent($content)
                 ->setData('stores', $stores);
