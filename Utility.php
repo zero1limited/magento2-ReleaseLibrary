@@ -85,9 +85,9 @@ class Utility
      *
      * @return CategoryTreeInterface
      */
-    public function moveCategory($categoryId,$parentId,$afterId)
+    public function moveCategory($categoryId,$parentId,$afterId = null)
     {
-		$this->logger->alert('moveCategory', array()) ; 
+	$this->logger->alert('moveCategory', array()) ; 
         $isCategoryMoveSuccess = false;
         try {
             $isCategoryMoveSuccess = $this->categoryManagement->move($categoryId, $parentId, $afterId);
