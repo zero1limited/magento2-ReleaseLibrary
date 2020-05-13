@@ -92,7 +92,7 @@ class Utility
         try {
             $isCategoryMoveSuccess = $this->categoryManagement->move($categoryId, $parentId, $afterId);
         } catch (Exception $exception) {
-            throw new Exception($exception->getMessage());
+            throw new Exception($exception->getMessage().' '.$categoryId);
         }
         return $isCategoryMoveSuccess;
     }
