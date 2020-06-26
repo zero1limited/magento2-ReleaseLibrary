@@ -12,6 +12,7 @@ use Magento\Cms\Model\PageRepository;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Zero1\ReleaseLibrary\EntityAlreadyExistsException;
 use \Psr\Log\LoggerInterface;
+use \Magento\Framework\App\Config\Storage\WriterInterface as ConfigWriterInterface;
 
 class Utility
 {
@@ -33,11 +34,15 @@ class Utility
     protected $pageRepository;
     /** @var \Magento\Cms\Model\PageFactory */
     protected $pageFactory;
-
     
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var ConfigWriterInterface */
+    protected $configWriter;
+
+    /** @var string */
+    protected $sourceModule = 'Zero1_ClientSetup';
 
     public function __construct(
         VariableFactory $customVariableFactory,
@@ -47,6 +52,7 @@ class Utility
         BlockInterfaceFactory $blockInterfaceFactory,
         PageRepository $pageRepository,
         PageFactory $pageFactory,
+        ConfigWriterInterface $configWriter,
         \Psr\Log\LoggerInterface $logger
     ){
         $this->customVariableFactory = $customVariableFactory;
@@ -56,9 +62,19 @@ class Utility
         $this->blockInterfaceFactory = $blockInterfaceFactory;
         $this->pageRepository = $pageRepository;
         $this->pageFactory = $pageFactory;
+        $this->configWriter = $configWriter;
         $this->logger = $logger;
     }
 
+    /**
+     * Create a custom variable
+     * @param $code string
+     * @param $name string
+     * @param $htmlValue string
+     * @param $plainValue string
+     * @param bool $updateIfExists
+     * @throws \Zero1\ReleaseLibrary\EntityAlreadyExistsException
+     */
     public function createCustomVariable(
         $code,
         $name,
@@ -79,11 +95,14 @@ class Utility
             ->setPlainValue($plainValue)
             -> save();
     }
-    
-     /**
-     * Move Category
-     *
-     * @return CategoryTreeInterface
+
+    /**
+     * Move a category
+     * @param $categoryId int
+     * @param $parentId int
+     * @param null|int $afterId
+     * @return bool
+     * @throws Exception
      */
     public function moveCategory($categoryId,$parentId,$afterId = null)
     {
@@ -96,28 +115,52 @@ class Utility
         }
         return $isCategoryMoveSuccess;
     }
-    
-    
+
+    /**
+     * Set the "source module"
+     * This is the module that contains files to be imported
+     * e.g cms block html in a file instead of in upgrade code
+     * @param string $sourceModule
+     * @return $this
+     */
+    public function setSourceModule($sourceModule)
+    {
+        $this->sourceModule = $sourceModule;
+        return $this;
+    }
+
+    /**
+     * Get the cms block source directory
+     * @return string
+     */
     public function getBlockSourceDirectory()
     {    	
-		$this->logger->alert('getBlockSourceDirectory', array()) ; 
+		$this->logger->alert('getBlockSourceDirectory', []);
         return sprintf(
             '%s/%s',
-            $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, 'Zero1_ClientSetup'),
+            $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, $this->sourceModule),
             'block_source'
         );
     }
 
+    /**
+     * Get the cms page source directory
+     * @return string
+     */
     public function getPageSourceDirectory()
     {
-        $this->logger->alert('getPageSourceDirectory', array()) ;
+        $this->logger->alert('getPageSourceDirectory', []);
         return sprintf(
             '%s/%s',
-            $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, 'Zero1_ClientSetup'),
+            $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, $this->sourceModule),
             'page_source'
         );
     }
-    
+
+    /**
+     * Create all blocks from specified directory
+     * @param string $source
+     */
     public function createBlocksFromDir($source)
     {
         $blocks = array_diff(scandir($source), ['..', '.']);
@@ -135,6 +178,10 @@ class Utility
         }
     }
 
+    /**
+     * Create all pages from specified directory
+     * @param string $source
+     */
     public function createPagesFromDir($source)
     {
         $pages = array_diff(scandir($source), ['..', '.']);
@@ -177,13 +224,8 @@ class Utility
             $this->blockRepository->save($block);
         } catch (NoSuchEntityException $exception) {
             $this->logger->alert('saveBlock ERROR '.$exception, array()) ;
-
-
         }
-
-
     }
-
 
     private function makePage(
         string $identifier,
@@ -208,5 +250,39 @@ class Utility
 
         $page->setContent($content);
         $this->pageRepository->save($page);
+    }
+
+    /**
+     * Set config
+     * @param array $pathAndValue
+     * must be an array of arrays, each sub array must contain between 2 - 4 elements
+     * index 0: config path (mandatory)
+     * index 1: value (mandatory)
+     * index 2: scope (optional - if not set will fall back to $defaultScope)
+     * index 3: scope id (optional - if not set will fall back to $defaultScopeId)
+     * @param string $defaultScope
+     * @param int $defaultScopeId
+     * @return Utility
+     * @throws \InvalidArgumentException
+     */
+    public function setConfig($pathAndValue, $defaultScope = 'default', $defaultScopeId = 0)
+    {
+        foreach($pathAndValue as $configRow){
+            if(!isset($configRow[0]) || !isset($configRow[1])){
+                throw new \InvalidArgumentException('You must provide at least two elements, you provided: '.json_encode($configRow));
+            }
+            $path = $configRow[0];
+            $value = $configRow[1];
+            $scope = isset($configRow[2])? $configRow[2] : $defaultScope;
+            $scopeId = isset($configRow[3])? $configRow[3] : $defaultScopeId;
+            $this->logger->debug('set config', [
+                'path' => $path,
+                'value' => $value,
+                'scope' => $scope,
+                'scope_id' => $scopeId
+            ]);
+            $this->configWriter->save($path, $value, $scope, $scopeId);
+        }
+        return $this;
     }
 }
