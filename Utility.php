@@ -111,7 +111,8 @@ class Utility
         try {
             $isCategoryMoveSuccess = $this->categoryManagement->move($categoryId, $parentId, $afterId);
         } catch (Exception $exception) {
-            throw new Exception($exception->getMessage().' '.$categoryId);
+            //throw new Exception($exception->getMessage().' '.$categoryId);
+	    $this->logger->alert('moveCategory failed '.$categoryId, []);
         }
         return $isCategoryMoveSuccess;
     }
