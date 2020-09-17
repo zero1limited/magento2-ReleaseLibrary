@@ -18,10 +18,10 @@ class Utility
 {
     /** @var \Magento\Variable\Model\VariableFactory **/
     protected $customVariableFactory;
-    
+
     /** @var CategoryManagementInterface */
-    protected $categoryManagement;  
-    
+    protected $categoryManagement;
+
     /** @var Dir\Reader */
     private $reader;
 
@@ -34,7 +34,7 @@ class Utility
     protected $pageRepository;
     /** @var \Magento\Cms\Model\PageFactory */
     protected $pageFactory;
-    
+
     /** @var LoggerInterface */
     private $logger;
 
@@ -43,6 +43,9 @@ class Utility
 
     /** @var string */
     protected $sourceModule = 'Zero1_ClientSetup';
+
+    /** @var string */
+    protected $sourceDirectory;
 
     public function __construct(
         VariableFactory $customVariableFactory,
@@ -106,13 +109,13 @@ class Utility
      */
     public function moveCategory($categoryId,$parentId,$afterId = null)
     {
-	//$this->logger->alert('moveCategory', array()) ; 
+        //$this->logger->alert('moveCategory', array()) ;
         $isCategoryMoveSuccess = false;
         try {
             $isCategoryMoveSuccess = $this->categoryManagement->move($categoryId, $parentId, $afterId);
         } catch (Exception $exception) {
             //throw new Exception($exception->getMessage().' '.$categoryId);
-	    $this->logger->alert('moveCategory failed '.$categoryId);
+            $this->logger->alert('moveCategory failed '.$categoryId);
         }
         return $isCategoryMoveSuccess;
     }
@@ -127,7 +130,20 @@ class Utility
     public function setSourceModule($sourceModule)
     {
         $this->sourceModule = $sourceModule;
+        $this->sourceDirectory = null;
         return $this;
+    }
+
+    /**
+     * Return the source directory for the configured source module
+     * @return string
+     */
+    public function getSourceDirectory()
+    {
+        if(!$this->sourceDirectory){
+            $this->sourceDirectory = preg_replace('/\/view$/', '', $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, $this->sourceModule));
+        }
+        return $this->sourceDirectory;
     }
 
     /**
@@ -135,11 +151,11 @@ class Utility
      * @return string
      */
     public function getBlockSourceDirectory()
-    {    	
-		$this->logger->alert('getBlockSourceDirectory', []);
+    {
+        $this->logger->alert('getBlockSourceDirectory', []);
         return sprintf(
             '%s/%s',
-            $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, $this->sourceModule),
+            $this->getSourceDirectory(),
             'block_source'
         );
     }
@@ -153,7 +169,7 @@ class Utility
         $this->logger->alert('getPageSourceDirectory', []);
         return sprintf(
             '%s/%s',
-            $this->reader->getModuleDir(Dir::MODULE_VIEW_DIR, $this->sourceModule),
+            $this->getSourceDirectory(),
             'page_source'
         );
     }
@@ -199,7 +215,7 @@ class Utility
             $this->makePage($id, $title, $contents);
         }
     }
-    
+
     private function makeBlock(
         string $identifier,
         string $title,
