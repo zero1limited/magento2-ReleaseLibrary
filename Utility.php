@@ -109,13 +109,12 @@ class Utility
      */
     public function moveCategory($categoryId,$parentId,$afterId = null)
     {
-        //$this->logger->alert('moveCategory', array()) ;
+        $this->logger->alert('moveCategory', array($categoryId,$parentId)) ; 
         $isCategoryMoveSuccess = false;
         try {
             $isCategoryMoveSuccess = $this->categoryManagement->move($categoryId, $parentId, $afterId);
         } catch (Exception $exception) {
-            //throw new Exception($exception->getMessage().' '.$categoryId);
-            $this->logger->alert('moveCategory failed '.$categoryId);
+            $this->logger->alert($exception->getMessage().' '.$categoryId);
         }
         return $isCategoryMoveSuccess;
     }
