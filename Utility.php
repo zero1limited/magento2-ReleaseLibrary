@@ -284,7 +284,7 @@ class Utility
     public function setConfig($pathAndValue, $defaultScope = 'default', $defaultScopeId = 0)
     {
         foreach($pathAndValue as $configRow){
-            if(!isset($configRow[0]) || !isset($configRow[1])){
+            if(!array_key_exists(0, $configRow) || !array_key_exists(1, $configRow)){
                 throw new \InvalidArgumentException('You must provide at least two elements, you provided: '.json_encode($configRow));
             }
             $path = $configRow[0];
