@@ -142,3 +142,16 @@ $this->setupUtility->setConfig([
     ['web/cookie/cookie_path', '/', 'stores', 2], // will be set for store 2
 ]);
 ```
+
+## Update Email Templates
+Update email template with ID of `$templateId`, with content from the file at `$newTemplateContentPath`.
+```
+$this->setupUtility->updateEmailTemplate($templateId, function($template){
+    /** @var \Magento\Email\Model\BackendTemplate $template */
+    $template->setTemplateText(
+        file_get_contents($newTemplateContentPath)
+    );
+    return $template;
+});
+```
+You can update as many/few things as you like.

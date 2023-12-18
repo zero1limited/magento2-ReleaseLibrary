@@ -13,6 +13,8 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Zero1\ReleaseLibrary\EntityAlreadyExistsException;
 use \Psr\Log\LoggerInterface;
 use \Magento\Framework\App\Config\Storage\WriterInterface as ConfigWriterInterface;
+use Magento\Email\Model\ResourceModel\Template as EmailTemplateResource;
+use Magento\Email\Model\BackendTemplateFactory as EmailTemplateFactory;
 
 class Utility
 {
@@ -47,6 +49,12 @@ class Utility
     /** @var string */
     protected $sourceDirectory;
 
+    /** @var EmailTemplateResource */
+    protected $emailTemplateResource;
+
+    /** @var EmailTemplateFactory */
+    protected $emailTemplateFactory;
+
     public function __construct(
         VariableFactory $customVariableFactory,
         CategoryManagementInterface $categoryManagement,
@@ -56,6 +64,8 @@ class Utility
         PageRepository $pageRepository,
         PageFactory $pageFactory,
         ConfigWriterInterface $configWriter,
+        EmailTemplateResource $emailTemplateResource,
+        EmailTemplateFactory $emailTemplateFactory,
         \Psr\Log\LoggerInterface $logger
     ){
         $this->customVariableFactory = $customVariableFactory;
@@ -66,6 +76,8 @@ class Utility
         $this->pageRepository = $pageRepository;
         $this->pageFactory = $pageFactory;
         $this->configWriter = $configWriter;
+        $this->emailTemplateResource = $emailTemplateResource;
+        $this->emailTemplateFactory = $emailTemplateFactory;
         $this->logger = $logger;
     }
 
@@ -301,4 +313,24 @@ class Utility
         }
         return $this;
     }
+
+    /**
+     * Update email template by id. 
+     * The callback will receive one argument $template (\Magento\Email\Model\BackendTemplate)
+     * you can update any part of the template, then return the object.
+     * @param int|string $templateId
+     * @param callable $callback
+     * @return void
+     */
+    public function updateEmailTemplate($templateId, callable $callback)
+    {
+        /** @var \Magento\Email\Model\BackendTemplate $template */
+        $template = $this->emailTemplateFactory->create();
+        $template->load($templateId);
+
+        $template = $callback($template);
+
+        $this->emailTemplateResource->save($template);
+    }
+
 }
