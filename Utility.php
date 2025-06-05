@@ -321,12 +321,17 @@ class Utility
      * @param int|string $templateId
      * @param callable $callback
      * @return void
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function updateEmailTemplate($templateId, callable $callback)
     {
         /** @var \Magento\Email\Model\BackendTemplate $template */
         $template = $this->emailTemplateFactory->create();
         $template->load($templateId);
+
+        if($template->getId() != $templateId){
+            throw new NoSuchEntityException(__('Email template with id %1 does not exist', $templateId));
+        }
 
         $template = $callback($template);
 
