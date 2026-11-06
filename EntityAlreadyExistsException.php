@@ -12,6 +12,6 @@ class EntityAlreadyExistsException extends \Exception
             $idValue
         );
 
-        parent::_construct($message);
+        parent::__construct($message);
     }
 }

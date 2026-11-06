@@ -191,6 +191,10 @@ class Utility
      */
     public function createBlocksFromDir($source)
     {
+        if (!is_dir($source)) {
+            $this->logger->warning('createBlocksFromDir: directory does not exist', ['source' => $source]);
+            return;
+        }
         $blocks = array_diff(scandir($source), ['..', '.']);
         foreach ($blocks as $block) {
             $path = $source . '/' . $block;
@@ -212,6 +216,10 @@ class Utility
      */
     public function createPagesFromDir($source)
     {
+        if (!is_dir($source)) {
+            $this->logger->warning('createPagesFromDir: directory does not exist', ['source' => $source]);
+            return;
+        }
         $pages = array_diff(scandir($source), ['..', '.']);
         foreach ($pages as $page) {
             $path = $source . '/' . $page;
